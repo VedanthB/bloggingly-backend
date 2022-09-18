@@ -20,7 +20,7 @@ app.get("/", (req, res) => {
 });
 
 // Database
-// import "./config/database";
+import "./config/db";
 
 // server listening
 const PORT = process.env.PORT || 5000;
