@@ -85,11 +85,13 @@ const authCtrl = {
 
       // if user exists
       loginUser(user, password, res);
-    } catch (error: any) {}
+    } catch (error: any) {
+      return res.status(500).json({ msg: error.message });
+    }
   },
   logout: async (req: Request, res: Response) => {
     try {
-      res.clearCookie("refreshtoken", { path: `/api/refresh_token` });
+      res.clearCookie("refreshToken", { path: `/api/refresh_token` });
 
       return res.json({ msg: "Logged out!" });
     } catch (error: any) {
