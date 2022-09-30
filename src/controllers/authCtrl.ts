@@ -9,6 +9,7 @@ import {
 } from "../config/generateToken";
 import sendMail from "../config/sendMail";
 import { validateEmail } from "../middleware/valid";
+
 import { IDecodedToken, IUser } from "../config/interface";
 
 const CLIENT_URL = `${process.env.BASE_URL}`;
@@ -72,6 +73,7 @@ const authCtrl = {
       return res.status(500).json({ msg: errorMessage });
     }
   },
+
   login: async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;

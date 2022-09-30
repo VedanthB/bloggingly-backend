@@ -1,3 +1,4 @@
+
 import { Document } from "mongoose";
 
 export interface INewUser {
@@ -7,11 +8,14 @@ export interface INewUser {
 }
 
 export interface IDecodedToken {
+
   id?: string;
+
   newUser?: INewUser;
   iat: number;
   exp: number;
 }
+
 
 export interface IUser extends Document {
   name: string;
@@ -22,3 +26,4 @@ export interface IUser extends Document {
   type: string;
   _doc: object;
 }
+
