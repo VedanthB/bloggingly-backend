@@ -22,7 +22,7 @@ app.use("/api", routes.authRouter);
 import "./config/db";
 
 // server listening
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4200;
 
 app.listen(PORT, () => {
   console.log("Server is running on port", PORT);
