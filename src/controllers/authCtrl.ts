@@ -122,7 +122,7 @@ const authCtrl = {
 
       const access_token = generateAccessToken({ id: user._id });
 
-      res.json({ access_token, user });
+      res.json({ msg: "Login Success!", access_token, user });
     } catch (error: any) {
       return res.status(500).json({ msg: error.message });
     }
