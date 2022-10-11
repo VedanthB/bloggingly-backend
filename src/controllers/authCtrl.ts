@@ -45,32 +45,30 @@ const authCtrl = {
     try {
       const { active_token } = req.body;
 
+      console.log(req.body);
+
       const decoded = <IDecodedToken>(
         jwt.verify(active_token, `${process.env.ACTIVE_TOKEN_SECRET}`)
       );
 
       const { newUser } = decoded;
 
+      console.log(newUser);
+
       if (!newUser)
         return res.status(400).json({ msg: "Invalid authentication." });
 
-      const user = new Users(newUser);
+      const user = await Users.findOne({ email: newUser.email });
 
-      await user.save();
+      if (user) return res.status(400).json({ msg: "Account already exists." });
+
+      const new_user = new Users(newUser);
+
+      await new_user.save();
 
       res.json({ msg: "Account has been activated!" });
     } catch (error: any) {
-      let errorMessage;
-
-      if (error.code === 11000) {
-        // duplicate key error 11000 in mongodb
-        errorMessage = Object.keys(error.keyValue)[0] + " already exists.";
-      } else {
-        const name = Object.keys(error.errors)[0];
-        errorMessage = error.errors[`${name}`].message;
-      }
-
-      return res.status(500).json({ msg: errorMessage });
+      return res.status(500).json({ msg: error.message });
     }
   },
 
@@ -124,7 +122,7 @@ const authCtrl = {
 
       const access_token = generateAccessToken({ id: user._id });
 
-      res.json({ access_token });
+      res.json({ access_token, user });
     } catch (error: any) {
       return res.status(500).json({ msg: error.message });
     }
