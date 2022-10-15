@@ -50,6 +50,7 @@ const authCtrl = {
       return res.status(500).json({ msg: err.message });
     }
   },
+
   active: async (req: Request, res: Response) => {
     try {
       const { active_token } = req.body;
@@ -96,6 +97,7 @@ const authCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
+
   logout: async (req: Request, res: Response) => {
     try {
       res.clearCookie("refreshToken", { path: `/api/refresh_token` });
@@ -105,6 +107,7 @@ const authCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
+
   refreshToken: async (req: Request, res: Response) => {
     try {
       const rf_token = req.cookies.refreshToken;
