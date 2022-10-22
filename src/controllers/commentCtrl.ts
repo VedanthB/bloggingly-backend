@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Comments from "../models/commentModel";
 import { IReqAuth } from "../config/interface";
 import mongoose from "mongoose";
+import { io } from "../index";
 
 const Pagination = (req: IReqAuth) => {
   const page = Number(req.query.page) * 1 || 1;
@@ -25,6 +26,14 @@ const commentCtrl = {
         blog_id,
         blog_user_id,
       });
+
+      const data = {
+        ...newComment._doc,
+        user: req.user,
+        createdAt: new Date().toISOString(),
+      };
+
+      io.to(`${blog_id}`).emit("createComment", data);
 
       await newComment.save();
 
@@ -160,6 +169,15 @@ const commentCtrl = {
         }
       );
 
+      const data = {
+        ...newComment._doc,
+        user: req.user,
+        reply_user: reply_user,
+        createdAt: new Date().toISOString(),
+      };
+
+      io.to(`${blog_id}`).emit("replyComment", data);
+
       await newComment.save();
 
       return res.json(newComment);
@@ -173,18 +191,20 @@ const commentCtrl = {
       return res.status(400).json({ msg: "invalid Authentication." });
 
     try {
-      const { content } = req.body;
+      const { data } = req.body;
 
       const comment = await Comments.findOneAndUpdate(
         {
           _id: req.params.id,
           user: req.user.id,
         },
-        { content }
+        { content: data.content }
       );
 
       if (!comment)
         return res.status(400).json({ msg: "Comment does not exits." });
+
+      io.to(`${data.blog_id}`).emit("updateComment", data);
 
       return res.json({ msg: "Update Success!" });
     } catch (err: any) {
@@ -217,6 +237,8 @@ const commentCtrl = {
         // delete all comments in replyCM
         await Comments.deleteMany({ _id: { $in: comment.replyCM } });
       }
+
+      io.to(`${comment.blog_id}`).emit("deleteComment", comment);
 
       return res.json({ msg: "Delete Success!" });
     } catch (err: any) {
