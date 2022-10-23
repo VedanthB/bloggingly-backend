@@ -14,6 +14,10 @@ router.get("/blogs/user/:id", blogCtrl.getBlogsByUser);
 
 router.get("/blog/:id", blogCtrl.getBlog);
 
-router.route("/blog/:id").get(blogCtrl.getBlog).put(auth, blogCtrl.updateBlog);
+router
+  .route("/blog/:id")
+  .get(blogCtrl.getBlog)
+  .put(auth, blogCtrl.updateBlog)
+  .delete(auth, blogCtrl.deleteBlog);
 
 export default router;
