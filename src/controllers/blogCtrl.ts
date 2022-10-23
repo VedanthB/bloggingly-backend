@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { IReqAuth } from "../config/interface";
 import Blogs from "../models/blogModel";
+import Comment from "../models/commentModel";
 import mongoose from "mongoose";
 
 const Pagination = (req: IReqAuth) => {
@@ -30,7 +31,10 @@ const blogCtrl = {
 
       await newBlog.save();
 
-      res.json({ newBlog });
+      res.json({
+        ...newBlog._doc,
+        user: req.user,
+      });
     } catch (err: any) {
       return res.status(500).json({ msg: err.message });
     }
@@ -256,6 +260,28 @@ const blogCtrl = {
         return res.status(400).json({ msg: "Invalid Authentication." });
 
       res.json({ msg: "Update Success!", blog });
+    } catch (err: any) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  deleteBlog: async (req: IReqAuth, res: Response) => {
+    if (!req.user)
+      return res.status(400).json({ msg: "Invalid Authentication." });
+
+    try {
+      // Delete Blog
+      const blog = await Blogs.findOneAndDelete({
+        _id: req.params.id,
+        user: req.user._id,
+      });
+
+      if (!blog)
+        return res.status(400).json({ msg: "Invalid Authentication." });
+
+      // Delete Comments
+      await Comment.deleteMany({ blog_id: blog._id });
+
+      res.json({ msg: "Delete Success!" });
     } catch (err: any) {
       return res.status(500).json({ msg: err.message });
     }
