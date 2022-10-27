@@ -14,6 +14,8 @@ router.get("/blogs/user/:id", blogCtrl.getBlogsByUser);
 
 router.get("/blog/:id", blogCtrl.getBlog);
 
+router.get("/search/blogs", blogCtrl.searchBlogs);
+
 router
   .route("/blog/:id")
   .get(blogCtrl.getBlog)

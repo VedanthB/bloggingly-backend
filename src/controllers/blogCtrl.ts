@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { IReqAuth } from "../config/interface";
-import Blogs from "../models/blogModel";
+import Blog from "../models/blogModel";
 import Comment from "../models/commentModel";
 import mongoose from "mongoose";
 
@@ -20,7 +20,7 @@ const blogCtrl = {
     try {
       const { title, content, description, thumbnail, category } = req.body;
 
-      const newBlog = new Blogs({
+      const newBlog = new Blog({
         user: req.user._id,
         title,
         content,
@@ -41,7 +41,7 @@ const blogCtrl = {
   },
   getHomeBlogs: async (req: Request, res: Response) => {
     try {
-      const blogs = await Blogs.aggregate([
+      const blogs = await Blog.aggregate([
         // User
         {
           $lookup: {
@@ -99,7 +99,7 @@ const blogCtrl = {
     const { limit, skip } = Pagination(req);
 
     try {
-      const Data = await Blogs.aggregate([
+      const Data = await Blog.aggregate([
         {
           $facet: {
             totalData: [
@@ -166,7 +166,7 @@ const blogCtrl = {
     const { limit, skip } = Pagination(req);
 
     try {
-      const Data = await Blogs.aggregate([
+      const Data = await Blog.aggregate([
         {
           $facet: {
             totalData: [
@@ -231,7 +231,7 @@ const blogCtrl = {
   },
   getBlog: async (req: Request, res: Response) => {
     try {
-      const blog = await Blogs.findOne({ _id: req.params.id }).populate(
+      const blog = await Blog.findOne({ _id: req.params.id }).populate(
         "user",
         "-password"
       );
@@ -248,7 +248,7 @@ const blogCtrl = {
       return res.status(400).json({ msg: "Invalid Authentication." });
 
     try {
-      const blog = await Blogs.findOneAndUpdate(
+      const blog = await Blog.findOneAndUpdate(
         {
           _id: req.params.id,
           user: req.user._id,
@@ -270,7 +270,7 @@ const blogCtrl = {
 
     try {
       // Delete Blog
-      const blog = await Blogs.findOneAndDelete({
+      const blog = await Blog.findOneAndDelete({
         _id: req.params.id,
         user: req.user._id,
       });
@@ -282,6 +282,37 @@ const blogCtrl = {
       await Comment.deleteMany({ blog_id: blog._id });
 
       res.json({ msg: "Delete Success!" });
+    } catch (err: any) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  searchBlogs: async (req: Request, res: Response) => {
+    try {
+      const blogs = await Blog.aggregate([
+        {
+          $search: {
+            index: "searchTitle",
+            autocomplete: {
+              query: `${req.query.title}`,
+              path: "title",
+            },
+          },
+        },
+        { $sort: { createdAt: -1 } },
+        { $limit: 5 },
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            thumbnail: 1,
+            createdAt: 1,
+          },
+        },
+      ]);
+
+      if (!blogs.length) return res.status(400).json({ msg: "No Blogs." });
+
+      res.json(blogs);
     } catch (err: any) {
       return res.status(500).json({ msg: err.message });
     }
