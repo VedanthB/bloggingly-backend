@@ -27,6 +27,13 @@ app.use("/api", routes.categoryRouter);
 app.use("/api", routes.blogRouter);
 app.use("/api", routes.commentRouter);
 
+app.get("/", (req, res) => {
+  res.json({
+    msg: "hello world",
+    // "blogs-api": "https://blog-dev-api.herokuapp.com/api/home/blogs",
+  });
+});
+
 // Database
 import "./config/db";
 
