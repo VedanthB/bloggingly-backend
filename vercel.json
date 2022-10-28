@@ -1,6 +1,6 @@
 {
   "version": 2,
   "name": "bloggingly-api",
-  "builds": [{ "src": "index.js", "use": "@vercel/node" }],
-  "routes": [{ "src": "/(.*)", "dest": "index.js" }]
+  "builds": [{ "src": "./dist/index.js", "use": "@vercel/node" }],
+  "routes": [{ "src": "/(.*)", "dest": "./dist/index.js" }]
 }
